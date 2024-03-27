@@ -1,16 +1,15 @@
-const { Client } = require("pg");
+const { Pool } = require("pg");
 
-const client = new Client({
+const pool = new Pool({
   user: process.env.POSTGRES_USER ?? "user",
-  host: "host.docker.internal",
+  host: process.env.POSTGRES_HOST ?? "localhost",
   database: process.env.POSTGRES_DB ?? "user",
   password: process.env.POSTGRES_PASSWORD ?? "password",
   port: 5432,
 });
 
-client
-  .connect()
-  .then(() => console.log("Connected to DB Successfully!!!"))
-  .catch((error) => console.error(error));
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle client", err);
+});
 
-module.exports = client;
+module.exports = pool;
