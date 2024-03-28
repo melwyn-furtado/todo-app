@@ -10,7 +10,7 @@ spec:
         - sh
         - -c
         - |
-          cat > /docker-entrypoint-initdb.d/01_schemas.sql << 'EOL'
+          cat > /docker-entrypoint-initdb.d/01_schema.sql << 'EOL'
           DROP TABLE IF EXISTS todos cascade;
           --TODO TABLE
           CREATE TABLE todos(
@@ -24,12 +24,12 @@ spec:
         - mountPath: /docker-entrypoint-initdb.d
           name: initdb
   containers:
-    - name: api
+    - name: todos
       image: collibra/todo-app:latest
       imagePullPolicy: Never
       ports:
         - containerPort: 7000
-    - name: database
+    - name: mydatabase
       image: postgres:alpine
       ports:
         - containerPort: 5432
