@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.todoApp.backend.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.todoApp.backend.name }}
+  serviceName: {{ .Values.todoApp.service.database.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.todoApp.backend.name }}
+    spec:
+      containers:
+        - name: mydatabase
+          image: postgres:alpine
+          ports:
+            - containerPort: {{ .Values.todoApp.service.database.port }}
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.todoApp.configMap.name }}
+                  key: postgres_db
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.todoApp.secret.name }}
+                  key: postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.todoApp.secret.name }}
+                  key: postgres_password
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: initdb
+          configMap:
+            name: {{ .Values.todoApp.configMap.name }}
+            items:
+              - key: 01_schema.sql
+                path: 01_schema.sql
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-app
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      initContainers:
+        - name: init-database
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              cat > /docker-entrypoint-initdb.d/01_schema.sql << 'EOL'
+              DROP TABLE IF EXISTS todos cascade;
+              --TODO TABLE
+              CREATE TABLE todos(
+                  id SERIAL PRIMARY KEY NOT NULL,
+                  note TEXT,
+                  done BOOLEAN DEFAULT FALSE,
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+              );
+              EOL
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: initdb
+      containers:
+        - name: todos
+          image: collibra/todo-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 7000
+        - name: mydatabase
+          image: postgres:alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "user"
+            - name: POSTGRES_USER
+              value: "user"
+            - name: POSTGRES_PASSWORD
+              value: "password"
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: initdb
+      volumes:
+        - name: initdb
+          emptyDir: {}

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.todoApp.frontend.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.todoApp.frontend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.todoApp.frontend.name }}
+    spec:
+      containers:
+        - env:
+          - name: POSTGRES_HOST
+            value: {{ .Values.todoApp.service.database.name }}
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.todoApp.configMap.name }}
+                key: postgres_db
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.todoApp.secret.name }}
+                key: postgres_user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.todoApp.secret.name }}
+                key: postgres_password
+          name: todos
+          image: {{ .Values.todoApp.frontend.image }}
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.todoApp.frontend.containerPort }}
+          readinessProbe:
+            httpGet:
+              path: /api/todo/healthz
+              port: {{ .Values.todoApp.frontend.containerPort }}

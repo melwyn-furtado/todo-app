@@ -1,6 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const pool = require("../config/db");
 
+const getHealth = asyncHandler(async (req, res) => {
+  res.status(200).send();
+});
+
 const getTodos = asyncHandler(async (req, res) => {
   const queryString = "SELECT * from todos";
   const { rows } = await pool.query(queryString);
@@ -42,6 +46,7 @@ const deleteTodo = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  getHealth,
   getTodos,
   createTodo,
   updateTodo,

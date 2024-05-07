@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-app-configmap
+data:
+  postgres_db: "user"
+  01_schema.sql: |
+    DROP TABLE IF EXISTS todos cascade;
+    --TODO TABLE
+    CREATE TABLE todos(
+                          id SERIAL PRIMARY KEY NOT NULL,
+                          note TEXT,
+                          done BOOLEAN DEFAULT FALSE,
+                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );

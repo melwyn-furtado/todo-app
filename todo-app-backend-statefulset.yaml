@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: todo-app-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-app-backend
+  serviceName: database
+  template:
+    metadata:
+      labels:
+        app: todo-app-backend
+    spec:
+      containers:
+        - name: mydatabase
+          image: postgres:alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-app-configmap
+                  key: postgres_db
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: todo-app-secret
+                  key: postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-app-secret
+                  key: postgres_password
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - pg_isready -U $POSTGRES_USER
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: initdb
+          configMap:
+            name: todo-app-configmap
+            items:
+              - key: 01_schema.sql
+                path: 01_schema.sql
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

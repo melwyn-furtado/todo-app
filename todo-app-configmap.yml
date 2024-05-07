@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: todo-app-configmap
-data:
-  postgres_db: user
-  postgres_user: user
-  postgres_password: password

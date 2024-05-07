@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.todoApp.service.app.name }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: {{ .Values.todoApp.service.app.port }}
+      targetPort: {{ .Values.todoApp.service.app.targetPort }}
+  selector:
+    app: {{ .Values.todoApp.frontend.name }}
