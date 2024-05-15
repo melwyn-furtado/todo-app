@@ -9,8 +9,8 @@ todoApp:
     postgresHost: database
     postgresDb: user
   secret:
-    postgresUser: user
-    postgresPassword: password
+    postgresUser: dummy
+    postgresPassword: dummy
   frontend:
     image: collibra/todo-app:latest
     containerPort: 7000
