@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.todoApp.backend.name }}
+  name: {{ .Release.Name }}-backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.todoApp.backend.name }}
+      app: {{ .Release.Name }}-backend
   serviceName: {{ .Values.todoApp.service.database.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.todoApp.backend.name }}
+        app: {{ .Release.Name }}-backend
     spec:
       containers:
         - name: mydatabase
@@ -22,17 +22,17 @@ spec:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.todoApp.configMap.name }}
+                  name: {{ .Release.Name }}-configmap
                   key: postgres_db
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.todoApp.secret.name }}
+                  name: {{ .Release.Name }}-secret
                   key: postgres_user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.todoApp.secret.name }}
+                  name: {{ .Release.Name }}-secret
                   key: postgres_password
           readinessProbe:
             exec:
@@ -50,7 +50,7 @@ spec:
       volumes:
         - name: initdb
           configMap:
-            name: {{ .Values.todoApp.configMap.name }}
+            name: {{ .Release.Name }}-configmap
             items:
               - key: 01_schema.sql
                 path: 01_schema.sql

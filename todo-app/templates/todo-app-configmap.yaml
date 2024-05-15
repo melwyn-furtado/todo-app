@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{.Values.todoApp.configMap.name }}
+  name: {{ .Release.Name }}-configmap
 data:
-  postgres_db: "{{ .Values.todoApp.configMap.postgresDb }}"
+  postgres_db: {{ .Values.todoApp.configMap.postgresDb | quote }}
   01_schema.sql: |
     DROP TABLE IF EXISTS todos cascade;
     --TODO TABLE

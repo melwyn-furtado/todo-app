@@ -1,24 +1,18 @@
 todoApp:
   service:
     app:
-      name: todo-app
       port: 8080
       targetPort: 7000
     database:
-      name: database
       port: 5432
   configMap:
-    name: todo-app-configmap
     postgresHost: database
     postgresDb: user
   secret:
-    name: todo-app-secret
-    postgresUser: dXNlcg==
-    postgresPassword: cGFzc3dvcmQ=
+    postgresUser: user
+    postgresPassword: password
   frontend:
-    name: todo-app-frontend
     image: collibra/todo-app:latest
     containerPort: 7000
   backend:
-    name: todo-app-backend
     containerPort: 5432

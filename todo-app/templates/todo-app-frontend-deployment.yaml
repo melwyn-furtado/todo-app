@@ -1,35 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.todoApp.frontend.name }}
+  name: {{ .Release.Name }}-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.todoApp.frontend.name }}
+      app: {{ .Release.Name }}-frontend
   template:
     metadata:
       labels:
-        app: {{ .Values.todoApp.frontend.name }}
+        app: {{ .Release.Name }}-frontend
     spec:
       containers:
         - env:
           - name: POSTGRES_HOST
-            value: {{ .Values.todoApp.service.database.name }}
+            value: {{ .Values.todoApp.configMap.postgresHost }}
           - name: POSTGRES_DB
             valueFrom:
               configMapKeyRef:
-                name: {{ .Values.todoApp.configMap.name }}
+                name: {{ .Release.Name }}-configmap
                 key: postgres_db
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.todoApp.secret.name }}
+                name: {{ .Release.Name }}-secret
                 key: postgres_user
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.todoApp.secret.name }}
+                name: {{ .Release.Name }}-secret
                 key: postgres_password
           name: todos
           image: {{ .Values.todoApp.frontend.image }}
